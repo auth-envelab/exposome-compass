@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=80,<84", "wheel>=0.43"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "exposome-compass"
+version = "0.1.0a1"
+description = "Environmental postcode reference processing and exploratory prioritisation research"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+dependencies = ["numpy>=2.2,<3", "pandas>=2.2,<3"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering",
+]
+
+[project.optional-dependencies]
+geo = ["rasterio>=1.4,<2", "pyproj>=3.6,<4"]
+test = ["pytest>=9,<10", "pytest-cov>=7,<8"]
+
+[project.scripts]
+exposome-compass = "exposome_compass.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["exposome_compass"]
+branch = true

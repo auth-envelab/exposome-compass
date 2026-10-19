@@ -1,0 +1,42 @@
+# Local environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+# Never commit downloaded provider data or generated research outputs
+data/
+results/
+output/
+outputs/
+*.tif
+*.tiff
+*.gpkg
+*.parquet
+*.sqlite
+*.db
+*.npy
+*.npz
+*.vcf
+*.vcf.gz
+*.bam
+*.cram
+*.key
+*.pem
+*.p12
+*.pfx
+*.env
+.env
+.env.*
+credentials*
+secrets*
+# No automatically embedded notebooks or PDFs
+.ipynb_checkpoints/
+*.pdf
