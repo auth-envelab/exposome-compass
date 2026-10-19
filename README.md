@@ -6,8 +6,6 @@ Exposome Compass is a local Python library and command-line tool for comparing g
 
 The unit of analysis is a **postcode reference record, not a person or household**. It does **not** calculate personal disease probabilities, attributable cases, clinical recommendations, or statutory air-quality compliance.
 
-> **Maturity:** `0.1.0a1` is an early public environmental-only research release. The numerical algorithms are tested on synthetic fixtures, but the library and any user-selected scoring criteria require independent source and scientific review before operational decisions. There is no bundled European reference dataset or automatic source download.
-
 ## Features
 
 | Capability | What the library actually provides |
