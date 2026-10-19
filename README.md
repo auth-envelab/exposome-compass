@@ -25,56 +25,116 @@ The unit of analysis is a **postcode reference record, not a person or household
 
 There are no bundled provider datasets, online dashboard, live API, automated health-impact coefficients, causal exposure-response model, population-weighted burden estimates, or validated all-domain European ranking. Contextual measurements are **not scored automatically**. Source availability does not imply that an environmental indicator should receive a particular scientific weight.
 
-## 1. Installation
+## 1. Start here: install and run on your computer
 
-Python **3.11, 3.12 or 3.13** is supported by the package metadata. Clone the new public repository and create a virtual environment:
+**Prerequisites:** Git, Python **3.11, 3.12 or 3.13**, a terminal, and internet access for initial Python dependency installation. No administrator privileges, Docker, WSL, or environmental dataset are needed to run the demonstration.
 
-**Windows PowerShell**
+Choose your operating system. Each sequence installs the current code into its own virtual environment, runs a complete **synthetic** example, and creates an HTML report. The reference needed for **real** postcode results is a separate input (Section 3).
 
-```powershell
- git clone https://github.com/auth-envelab/exposome-compass.git
- cd exposome-compass
- py -3.13 -m venv .venv
- .\.venv\Scripts\python.exe -m pip install -e ".[geo,test]"
- .\.venv\Scripts\python.exe -m exposome_compass --version
-```
+### Windows (PowerShell) — copy and paste
 
-**Linux or macOS**
+Open **Windows PowerShell** in a folder where you can create a new directory (for example, Documents):
 
-```bash
- git clone https://github.com/auth-envelab/exposome-compass.git
- cd exposome-compass
- python3 -m venv .venv
- . .venv/bin/activate
- python -m pip install -e ".[geo,test]"
- exposome-compass --version
-```
+~~~powershell
+git --version
+py -3.13 --version
 
-`geo` is optional and needed only for local GeoTIFF sampling; `test` is optional for contributors. The core library requires NumPy and pandas. Network access is needed for dependency installation unless packages are already cached. The command is also available as `python -m exposome_compass` and works without adding virtual-environment executables to `PATH`.
+git clone https://github.com/auth-envelab/exposome-compass.git
+Set-Location exposome-compass
 
-## 2. Five-minute demonstration (synthetic data)
+py -3.13 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e .
+.\.venv\Scripts\python.exe -m exposome_compass --version
 
-```powershell
+.\.venv\Scripts\python.exe -m exposome_compass demo-create --output demo-example
+Invoke-Item .\demo-example\demo_case\case_report.html
+~~~
+
+If you have Python 3.12 or 3.11 instead, replace **both** `py -3.13` commands with `py -3.12` or `py -3.11`. Install a supported Python version from [python.org](https://www.python.org/downloads/) if needed.
+
+**Why the explicit Python path?** Windows often has more than one Python installation. Using `.\.venv\Scripts\python.exe` for **every subsequent Windows command** ensures the library is installed and run with the same interpreter. You do not need to activate the environment or change the PowerShell execution policy. In a new PowerShell session, first navigate back to the cloned `exposome-compass` directory.
+
+**Expected output:** The version command displays `0.1.0a1`, the demo command lists its generated folders, and a browser opens `demo-example\demo_case\case_report.html`.
+
+### Linux or macOS — terminal
+
+~~~bash
+git --version
+python3 --version
+
+git clone https://github.com/auth-envelab/exposome-compass.git
+cd exposome-compass
+
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -e .
+python -m exposome_compass --version
 python -m exposome_compass demo-create --output demo-example
-```
+~~~
 
-This builds a **clearly synthetic** 12-postcode reference, a fully declared example scoring scenario, a sampled-weight analysis and a postcode HTML report. No live environmental data are retrieved.
+Use a `python3` executable reporting version **3.11–3.13**. The activation line ensures that later `python` commands use the new virtual environment. Activate it again in each new terminal session, or run `.venv/bin/python` directly. Open `demo-example/demo_case/case_report.html` in your browser (for example, `open` on macOS or `xdg-open` on Linux, if available).
 
-Open `demo-example/demo_case/case_report.html`. You can also look up the reference again:
+### Optional GeoTIFF support and developer tests
 
-```powershell
-python -m exposome_compass postcode 50005 --country GR `
-    --reference demo-example/demo_result
-```
+The base install above includes postcode CSV import, annual aggregation, scoring and reporting. GeoTIFF sampling requires the optional `geo` dependencies; tests use the optional `test` dependencies.
 
-The example's invented values are for software learning only and must never be reported as observed exposures.
+Windows:
+
+~~~powershell
+.\.venv\Scripts\python.exe -m pip install -e ".[geo,test]"
+.\.venv\Scripts\python.exe -m pytest -q
+~~~
+
+Linux/macOS (activate `.venv` first):
+
+~~~bash
+python -m pip install -e ".[geo,test]"
+python -m pytest -q
+~~~
+
+You can instead install only the geo or test extra. These extras are not required to try the demonstration.
+
+## 2. Explore the synthetic demonstration
+
+The Section 1 example creates **12 invented postcodes** (six Greek and six Spanish), source-labelled inputs, a scoring scenario, a two-indicator preference-sensitivity analysis, and a postcode HTML report. It downloads **no environmental measurements**.
+
+From the cloned repository, verify the generated reference and request a new report for a demo postcode.
+
+Windows PowerShell:
+
+~~~powershell
+.\.venv\Scripts\python.exe -m exposome_compass verify .\demo-example\demo_result
+.\.venv\Scripts\python.exe -m exposome_compass postcode 50005 --country GR --reference .\demo-example\demo_result
+Invoke-Item .\demo-example\demo_result\reports\GR_50005\case_report.html
+~~~
+
+Linux/macOS (with `.venv` activated):
+
+~~~bash
+python -m exposome_compass verify demo-example/demo_result
+python -m exposome_compass postcode 50005 --country GR --reference demo-example/demo_result
+~~~
+
+| Generated path | Contents |
+|---|---|
+| `demo-example/demo_reference/` | Synthetic environmental inputs and manifest |
+| `demo-example/scenario.json` | Indicators, explicit weights, seed and sensitivity settings |
+| `demo-example/demo_result/` | Scored synthetic reference with integrity manifest |
+| `demo-example/demo_case/case_report.html` | Initial demo report |
+| `demo-example/demo_result/reports/GR_50005/` | Report created by the additional postcode command |
+
+**Never interpret or cite demo measurements as real-world exposure data.** The `demo-create` command will not overwrite an existing demo directory; select a new `--output` path to run it again.
 
 ## 3. Query a real postcode from prepared results
+
+**Real-data prerequisite:** You must already have a prepared reference folder containing `reference.csv` and `reference_manifest.json`, created by an import, aggregation or scoring command below. **The public repository does not bundle the European postcode dataset or download official provider measurements automatically.** Lookup reads your supplied reference; it cannot invent observations for a missing postcode.
+
+All Windows code blocks below assume you are in the cloned repository directory and use the virtual-environment Python. For Linux/macOS, after activating the virtual environment, use `python -m exposome_compass` and bash continuations rather than the Windows executable path.
 
 After preparing or importing a reference, supply the reference directory and a **country-qualified postcode**:
 
 ```powershell
-python -m exposome_compass postcode 54628 --country GR `
+.\.venv\Scripts\python.exe -m exposome_compass postcode 54628 --country GR `
     --reference "E:\Research\environment-reference"
 ```
 
@@ -91,17 +151,19 @@ To avoid passing `--reference` on every command:
 
 ```powershell
 $env:EXPOSOME_COMPASS_REFERENCE = "E:\Research\environment-reference"
-python -m exposome_compass postcode 54628 --country GR
+.\.venv\Scripts\python.exe -m exposome_compass postcode 54628 --country GR
 ```
 
 Postal codes are treated as **strings** to preserve leading zeros and country-specific formats. A postcode is not an exact dwelling position; coordinates, where provided, identify the geographic support used in the source.
 
 ## 4. Import an existing environmental reference
 
+**Fastest real-data route:** Start with your own environmental postcode CSV. Required input columns are `country_code`, `postal_code`, `pm25_value` and `no2_value`; other environmental indicators and precomputed exploratory priority fields are optional. Unknown input columns are not copied into the public reference. The source file itself is not modified.
+
 If you already have an environmental postcode CSV with columns such as `country_code`, `postal_code`, `pm25_value`, `no2_value`, `pm10_value`, `road_density_geofabrik_value`, and optionally precomputed priority fields, you can import it:
 
 ```powershell
-python -m exposome_compass import-existing `
+.\.venv\Scripts\python.exe -m exposome_compass import-existing `
     "E:\Research\existing_postcode_environment.csv" `
     --output "E:\Research\environment-reference"
 ```
@@ -111,6 +173,8 @@ Optional: add `--expected-sha256 HASH` when you have a trusted input checksum. I
 `reference.csv` and `reference_manifest.json` are generated. The existing raw CSV is left untouched. Avoid committing these potentially huge or third-party-licensed files to GitHub.
 
 ## 5. Build 2022–2025 air-pollution summaries
+
+**New-data route:** Obtain and document source datasets yourself, including product release, spatial resolution, metric, units, relevant years, permitted use and missingness. For a comparative two-pollutant score you need **at least two postcodes with complete PM2.5 and NO₂**; a single area cannot meaningfully rank itself. The library does not substitute synthetic or imputed values for missing years.
 
 For new data, start with one record per country, postcode, pollutant and year:
 
@@ -127,7 +191,7 @@ These four rows are merely an input-format example, **not measurements** for the
 To aggregate a complete annual table:
 
 ```powershell
-python -m exposome_compass aggregate-air annual_concentrations.csv `
+.\.venv\Scripts\python.exe -m exposome_compass aggregate-air annual_concentrations.csv `
     --output "E:\Research\air-reference"
 ```
 
@@ -138,7 +202,7 @@ The aggregate uses a simple equal-year average of all four annual concentrations
 Once you have a permitted local, single-band annual GeoTIFF and `points.csv` containing `country_code,postal_code,latitude,longitude`, you may sample the raster at those representative points:
 
 ```powershell
-python -m exposome_compass sample-raster `
+.\.venv\Scripts\python.exe -m exposome_compass sample-raster `
     --points points.csv `
     --raster pm25_2022.tif `
     --indicator pm25 --year 2022 `
@@ -173,7 +237,7 @@ Scoring uses **explicit decision weights**. There are no automatically selected 
 Run against a prepared input reference:
 
 ```powershell
-python -m exposome_compass run `
+.\.venv\Scripts\python.exe -m exposome_compass run `
     --reference "E:\Research\air-reference" `
     --scenario scenario.json `
     --output "E:\Research\air-ranking-v1"
@@ -182,7 +246,7 @@ python -m exposome_compass run `
 Then inspect a postcode from the scored result:
 
 ```powershell
-python -m exposome_compass postcode 54628 --country GR `
+.\.venv\Scripts\python.exe -m exposome_compass postcode 54628 --country GR `
     --reference "E:\Research\air-ranking-v1"
 ```
 
@@ -210,7 +274,7 @@ Each prepared reference/result contains:
 Verify reference integrity:
 
 ```powershell
-python -m exposome_compass verify "E:\Research\air-ranking-v1"
+.\.venv\Scripts\python.exe -m exposome_compass verify "E:\Research\air-ranking-v1"
 ```
 
 Checksums detect changes **after** a result was created. They do not independently certify a provider, licence, analytical assumptions or scientific approval. Produced folders are immutable for analysis and may be replaced only through a new versioned output; postcode report folders have a separate, guarded refresh mechanism.
@@ -246,9 +310,11 @@ report.write(r"E:\Research\postcodes\GR_54628")
 
 ## 10. Testing, security and contributing
 
+Run tests in the same virtual environment used to install the library. The tests are software fixtures, not independent environmental-science validation.
+
 ```powershell
-python -m pip install -e ".[test]"
-python -m pytest -q
+.\.venv\Scripts\python.exe -m pip install -e ".[test]"
+.\.venv\Scripts\python.exe -m pytest -q
 ```
 
 The test suite uses synthetic fixtures and explicitly labelled local input examples; it does not assert full European scientific validation. See [Contributing](CONTRIBUTING.md), [Data policy](docs/data.md) and [Reproducibility](docs/reproducibility.md).
@@ -257,8 +323,32 @@ Do not commit participant data, exact home addresses, credentials, cached provid
 
 ## 11. License, maintenance and citation
 
-The controlling licence is the root [`LICENSE`](LICENSE) file, which must be explicitly selected and included by the organisation before publication. A public repository does not automatically grant reuse rights in the absence of a licence.
+This repository is published under the **MIT License**; see the controlling root [`LICENSE`](LICENSE) file. The software licence does **not** automatically grant redistribution rights for third-party environmental datasets.
 
 When using the software in academic work, cite the version, immutable Git commit, accessed source datasets with their version and dates, and your declared model/scenario. A software archive DOI and a scholarly validation publication should be listed only when actually available.
 
 Maintained as an environmental research software project under **auth-envelab**. Issues and contributions should include software version, Python version, the smallest redistributable reproduction case and nonconfidential logs.
+
+## 12. Troubleshooting
+
+| Issue | Resolution |
+|---|---|
+| Windows says `py` is not recognized or Python is unsupported | Install Python 3.11–3.13 from [python.org](https://www.python.org/downloads/), reopen PowerShell, and use the installed version consistently (for example, `py -3.12`). |
+| `exposome-compass` is not recognized, or `python` launches the wrong interpreter on Windows | Run `.\.venv\Scripts\python.exe -m exposome_compass` **from the cloned repository folder**. No PATH or activation changes are needed. |
+| `No module named exposome_compass` | Install with the exact virtual-environment interpreter: `.\.venv\Scripts\python.exe -m pip install -e .` (Windows), or activate `.venv` and reinstall on Linux/macOS. |
+| `No module named rasterio` while running `sample-raster` | Install the optional geo extra: `.\.venv\Scripts\python.exe -m pip install -e ".[geo]"` on Windows, or `python -m pip install -e ".[geo]"` in an activated Unix environment. |
+| `Provide --reference` or postcode not found | Import or create a reference first, point `--reference` to the folder containing `reference.csv` and `reference_manifest.json`, and check that the country-qualified postcode exists in it. |
+| An area has no score | All selected criteria must have valid source data. Missing exposure is **not zero**. Ranking requires two or more jointly complete postcodes. |
+| Import, scoring or demo reports the output directory already exists | Analysis directories are immutable. Use a **new** `--output` folder. Only a matching, intact **postcode report** directory is eligible for guarded auto-refresh. |
+| A postcode report refuses to refresh | Its files were modified or do not match the new case/reference. Preserve the prior directory and supply a new report `--output` path. |
+| `git clone` reports that its destination already exists | Reuse the existing checkout or clone into a different folder; do not overwrite other work. |
+| Dependency installation fails | Check your Python version, internet connectivity and virtual environment. Optional geo and test dependencies may be installed separately. |
+
+Command-line help on Windows:
+
+~~~powershell
+.\.venv\Scripts\python.exe -m exposome_compass --help
+.\.venv\Scripts\python.exe -m exposome_compass postcode --help
+~~~
+
+When asking for support, provide the command, software version, operating system and a **non-confidential** error log. Do not share personal records, credentials or restricted provider data.
